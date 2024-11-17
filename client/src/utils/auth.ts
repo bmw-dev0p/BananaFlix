@@ -10,27 +10,32 @@ interface UserToken {
 class AuthService {
   // get user data
   getProfile() {
-    return jwtDecode(this.getToken() || '');
+    const token = this.getToken();
+    if (!token) return null;
+    return jwtDecode<UserToken>(token);
   }
 
   // check if user's logged in
   loggedIn() {
     // Checks if there is a saved token and it's still valid
     const token = this.getToken();
-    return !!token && !this.isTokenExpired(token); // handwaiving here
+    if (!token) return false; // No token means not logged in
+    if (this.isTokenExpired(token)) {
+      this.logout(); // Clear expired tokens
+      return false;
+    }
+    return true; // Token is valid and not expired
   }
 
   // check if token is expired
   isTokenExpired(token: string) {
     try {
       const decoded = jwtDecode<UserToken>(token);
-      if (decoded.exp < Date.now() / 1000) {
-        return true;
-      } 
-      
-      return false;
+      // Check expiration against current time
+      return decoded.exp < Date.now() / 1000;
     } catch (err) {
-      return false;
+      console.error('Error decoding token:', err);
+      return true; // Treat invalid tokens as expired
     }
   }
 
@@ -42,13 +47,13 @@ class AuthService {
   login(idToken: string) {
     // Saves user token to localStorage
     localStorage.setItem('id_token', idToken);
-    window.location.assign('/');
+    window.location.assign('/'); // Reload to apply login state
   }
 
   logout() {
     // Clear user token and profile data from localStorage
     localStorage.removeItem('id_token');
-    // this will reload the page and reset the state of the application
+    // Reload the page to reset state
     window.location.assign('/');
   }
 }
