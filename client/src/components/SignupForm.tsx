@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-
-// import { createUser } from '../utils/API'; // no longer needed
 import Auth from '../utils/auth';
-// import  User from '../../../server/src/models/User.js'; // change to import the apollo model? - not needed
-
-// imported useMutation hook
 import { useMutation } from '@apollo/client';
-// imported mutation
 import { ADD_USER } from '../utils/mutations';
+// import { createUser } from '../utils/API'; // no longer needed
+// import  User from '../../../server/src/models/User.js'; // change to import the apollo model? - not needed
+// imported useMutation hook
+// imported mutation
 
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
 const SignupForm = ({}: { handleModalClose: () => void }) => {
   // set initial form state
-  const [userFormData, setUserFormData] = useState({ username: '', email: '', password: ''}); // remove savedBooks
+  const [userFormData, setUserFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    age: '',
+  });
   // set state for form validation
   const [validated] = useState(false);
   // set state for alert
@@ -28,57 +31,53 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
   };
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  try {
-    console.log('Attempting to add user with data:', userFormData);
-    const { data } = await addUser({
-      variables: { 
-        input: {
-          username: userFormData.username,
-          email: userFormData.email,
-          password: userFormData.password
-        } 
-      },
-    });
-    console.log('Response from addUser mutation:', data);
+    try {
+      console.log('Attempting to add user with data:', userFormData);
 
-    // enhanced login check
-    if (data && data.addUser && data.addUser.token) {
-      Auth.login(data.addUser.token);
-      console.log('Sign up successful');
-    } else {
-      console.error('Unexpected response structure:', data);
+      // Check age verification
+      if (parseInt(userFormData.age, 10) <= 18) {
+        console.log('Kids');
+      }
+
+      const { data } = await addUser({
+        variables: {
+          input: {
+            username: userFormData.username,
+            email: userFormData.email,
+            password: userFormData.password,
+            age: parseInt(userFormData.age, 10), // Convert age to a number
+          },
+        },
+      });
+
+      console.log('Response from addUser mutation:', data);
+
+      if (data && data.addUser && data.addUser.token) {
+        Auth.login(data.addUser.token);
+        console.log('Sign up successful');
+      } else {
+        console.error('Unexpected response structure:', data);
+        setShowAlert(true);
+      }
+    } catch (err) {
+      console.error('Error during sign-up:', err);
       setShowAlert(true);
     }
 
-    // enhanced error handling
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error('Error details:', err.message);
-      if ('graphQLErrors' in err) {
-        console.error('GraphQL Errors:', err.graphQLErrors);
-      }
-      if ('networkError' in err && err.networkError) {
-        console.error('Network error details:', err.networkError);
-      }
-    }
-    setShowAlert(true);
-  }
-  
-  // reset form state
+    // reset form state
     setUserFormData({
       username: '',
       email: '',
       password: '',
+      age: '',
     });
   };
 
   return (
     <>
-      {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
-        {/* show alert if server response is bad */}
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your signup!
         </Alert>
@@ -121,14 +120,35 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
           />
           <Form.Control.Feedback type='invalid'>Password is required!</Form.Control.Feedback>
         </Form.Group>
+
+        <Form.Group className='mb-3'>
+          <Form.Label htmlFor='age'>Age</Form.Label>
+          <Form.Control
+            type='number'
+            placeholder='Your age'
+            name='age'
+            onChange={handleInputChange}
+            value={userFormData.age || ''}
+            required
+          />
+          <Form.Control.Feedback type='invalid'>Age is required!</Form.Control.Feedback>
+        </Form.Group>
+
         <Button
-          disabled={!(userFormData.username && userFormData.email && userFormData.password)}
+          disabled={
+            !(
+              userFormData.username &&
+              userFormData.email &&
+              userFormData.password &&
+              userFormData.age
+            )
+          }
           type='submit'
-          variant='success'>
+          variant='success'
+        >
           Submit
         </Button>
       </Form>
-
     </>
   );
 };

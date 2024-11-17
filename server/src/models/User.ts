@@ -14,31 +14,14 @@ export interface UserDocument extends Document {
   bookCount: number;
 }
 
-const userSchema = new Schema<UserDocument>(
-  {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      match: [/.+@.+\..+/, 'Must use a valid email address'],
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-  },
-  // set this to use virtual below
-  {
-    toJSON: {
-      virtuals: true,
-    },
-  }
-);
+// Added age for user identification
+const userSchema = new Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true, match: [/.+@.+\..+/, 'Must use a valid email address'] },
+  password: { type: String, required: true },
+  age: { type: Number, required: true },
+});
+
 
 // hash user password
 userSchema.pre('save', async function (next) {

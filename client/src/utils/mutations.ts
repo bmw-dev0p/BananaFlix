@@ -20,36 +20,37 @@ export const ADD_USER = gql`
       user {
         _id
         username
+        email
+        age
       }
       token
     }
   }
 `;
 
-// Mutation for saving a book to a user's collection
-export const SAVE_BOOK = gql`
-  mutation saveBook($input: BookInput!) {
-    saveBook(input: $input) {
-      bookId
+// Mutation for saving a movie to a user's collection
+export const SAVE_MOVIE = gql`
+  mutation saveMovie($input: MovieInput!) {
+    saveMovie(input: $input) {
+      movieId
       title
-      authors
-      description
-      image
-      link
+      overview
+      posterPath
+      releaseDate
     }
   }
 `;
 
-// Mutation for removing a book from a user's collection
-export const REMOVE_BOOK = gql`
-  mutation removeBook($bookId: ID!) {
-    removeBook(bookId: $bookId) {
-      bookId
+// Mutation for removing a movie from a user's collection
+export const REMOVE_MOVIE = gql`
+  mutation removeMovie($movieId: ID!) {
+    removeMovie(movieId: $movieId) {
+      movieId
       title
-      authors
-      description
-      image
-      link
+      overview
+      posterPath
+      releaseDate
     }
   }
 `;
+
