@@ -16,8 +16,13 @@ interface LoginUserArgs {
   password: string;
 }
 
+interface UserArgs {
+  username: string;
+}
+
 const resolvers = {
   Query: {
+    // Fetch the logged-in user's details
     me: async (_parent: any, _args: any, context: any) => {
       console.log('User:', context.user);
 
@@ -26,8 +31,24 @@ const resolvers = {
       }
       throw new AuthenticationError('Could not authenticate user.');
     },
+
+    // Fetch a single user by username
+    user: async (_parent: any, { username }: UserArgs) => {
+      console.log('Searching for user with username:', username);
+
+      const user = await User.findOne({ username });
+      if (!user) {
+        console.log(`No user found with username: ${username}`);
+        return null; // Explicitly return null if no user is found
+      }
+
+      console.log('Found user:', user);
+      return user;
+    },
   },
+
   Mutation: {
+    // Add a new user (sign up)
     addUser: async (_parent: any, { input }: AddUserArgs) => {
       const { username, email, password, age } = input;
 
@@ -41,6 +62,7 @@ const resolvers = {
       return { token, user };
     },
 
+    // Log in an existing user
     login: async (_parent: any, { email, password }: LoginUserArgs) => {
       const user = await User.findOne({ email });
       if (!user) {

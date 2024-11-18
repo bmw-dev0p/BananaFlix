@@ -18,14 +18,16 @@ const seedUsers = async () => {
     // Seed new users
     const users = [
       {
-        username: 'testuser1',
-        email: 'testuser1@example.com',
-        password: await bcrypt.hash('password123', 10),
+        username: 'banana1',
+        email: 'banana1@banana.com',
+        password: await bcrypt.hash('banana1', 10),
+        age: 15,
       },
       {
-        username: 'testuser2',
-        email: 'testuser2@example.com',
-        password: await bcrypt.hash('password123', 10),
+        username: 'banana2',
+        email: 'banana2@banana.com',
+        password: await bcrypt.hash('banana2', 10),
+        age: 20,
       },
     ];
 
@@ -37,7 +39,7 @@ const seedUsers = async () => {
     console.log('Database connection closed.');
   } catch (error) {
     console.error('Error seeding users:', error);
-    process.exit(1);
+    process.exit(1); // Exit with failure
   }
 };
 
