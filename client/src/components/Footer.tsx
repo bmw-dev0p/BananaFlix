@@ -2,6 +2,8 @@ import { useState } from "react";
 import "./Footer.css"; // Import the CSS for the chat popup
 
 const Footer = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || "https://bananaflix-fdyk.onrender.com";
+
   const [message, setMessage] = useState(""); // State to hold the current message input by the user
   const [chatHistory, setChatHistory] = useState<string[]>([]); // State to store the chat history
   const [loading, setLoading] = useState(false); // State to indicate if the bot is currently responding
@@ -16,7 +18,7 @@ const Footer = () => {
 
       try {
         // Send the user's message to the server
-        const response = await fetch("http://localhost:3001/api/chat", {
+        const response = await fetch(`${apiUrl}/api/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -34,7 +36,7 @@ const Footer = () => {
 
         setChatHistory((prev) => [...prev, `Bot: ${botMessage}`]); // Add the bot's message to chat history
       } catch (error) {
-        console.error("Error fetching data from API:", error); // Log any errors 
+        console.error("Error fetching data from API:", error); // Log any errors
         setChatHistory((prev) => [...prev, "Bot: Error connecting to server."]); // Add an error message to chat history
       } finally {
         setLoading(false); // Reset loading state
