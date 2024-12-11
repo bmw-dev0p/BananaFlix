@@ -8,10 +8,15 @@ export default defineConfig({
     port: 3000,
     open: true,
     proxy: {
-      '/graphql': { // This is the URL we're proxying for GraphQL 
-        target: 'http://localhost:3001',
+      '/graphql': {
+        target: process.env.VITE_API_URL || 'http://localhost:3001',
         secure: false,
-        changeOrigin: true
+        changeOrigin: true,
+      },
+      '/api/chat': {
+        target: process.env.VITE_API_URL || 'http://localhost:3001',
+        secure: false,
+        changeOrigin: true,
       }
     }
   }
